@@ -45,6 +45,8 @@
 #include "binaryninjacore.h"
 #include "exceptions.h"
 #include "json/json.h"
+#include <fmt/format.h>
+#include <fmt/ranges.h>
 
 #ifdef _MSC_VER
 	#define NOEXCEPT
@@ -1121,8 +1123,8 @@ namespace BinaryNinja {
 		std::vector<int64_t> GetSignedIntegerList() const;
 		std::vector<double> GetDoubleList() const;
 		std::vector<uint8_t> GetRaw() const;
-		std::vector<Ref<Metadata>> GetArray();
-		std::map<std::string, Ref<Metadata>> GetKeyValueStore();
+		std::vector<Ref<Metadata>> GetArray() const;
+		std::map<std::string, Ref<Metadata>> GetKeyValueStore() const;
 
 		// For key-value data only
 		/*! Get a Metadata object by key. Only for if IsKeyValueStore == true
@@ -16068,3 +16070,45 @@ namespace std
 		}
 	};
 }  // namespace std
+
+
+template<typename T> struct fmt::formatter<BinaryNinja::Ref<T>>
+{
+	format_context::iterator format(const BinaryNinja::Ref<T>& obj, format_context& ctx) const
+	{
+		return fmt::formatter<T>().format(*obj.GetPtr(), ctx);
+	}
+	constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator { return ctx.begin(); }
+};
+
+template<typename T> struct fmt::formatter<BinaryNinja::Confidence<T>>
+{
+	format_context::iterator format(const BinaryNinja::Confidence<T>& obj, format_context& ctx) const
+	{
+		fmt::formatter<T>().format(obj.GetValue(), ctx);
+		return fmt::format_to(ctx.out(), " ({} confidence)", ctx);
+	}
+	constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator { return ctx.begin(); }
+};
+
+template<typename T> struct fmt::formatter<BinaryNinja::Confidence<BinaryNinja::Ref<T>>>
+{
+	format_context::iterator format(const BinaryNinja::Confidence<BinaryNinja::Ref<T>>& obj, format_context& ctx) const
+	{
+		fmt::formatter<T>().format(*obj.GetValue().GetPtr(), ctx);
+		return fmt::format_to(ctx.out(), " ({} confidence)", ctx);
+	}
+	constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator { return ctx.begin(); }
+};
+
+template<> struct fmt::formatter<BinaryNinja::Metadata>
+{
+	format_context::iterator format(const BinaryNinja::Metadata& obj, format_context& ctx) const;
+	constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator { return ctx.begin(); }
+};
+
+template<> struct fmt::formatter<BinaryNinja::NameList>
+{
+	format_context::iterator format(const BinaryNinja::NameList& obj, format_context& ctx) const;
+	constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator { return ctx.begin(); }
+};
