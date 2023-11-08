@@ -711,6 +711,9 @@ namespace BinaryNinja {
 	class Logger: public CoreRefCountObject<BNLogger, BNNewLoggerReference, BNFreeLogger>
 	{
 			size_t GetThreadId() const;
+			std::unordered_map<BNLogLevel, std::string> m_iterBuffer;
+			friend struct Iterator;
+
 		public:
 			Logger(BNLogger* logger);
 
@@ -819,6 +822,37 @@ namespace BinaryNinja {
 				\return The logger session ID
 			*/
 			size_t GetSessionId();
+
+
+			// Iterator implementation
+			struct Iterator
+			{
+			private:
+				Logger* m_logger;
+				BNLogLevel m_level;
+
+				std::string& buffer();
+
+			public:
+				typedef std::output_iterator_tag iterator_category;
+				typedef void value_type;
+				typedef void difference_type;
+				typedef void pointer;
+				typedef void reference;
+
+				Iterator(Logger* logger, BNLogLevel level);
+				Iterator operator++(int) { return *this; }
+				Iterator& operator++() { return *this; }
+				Iterator& operator*() { return *this; }
+				Iterator& operator=(const char& ch);
+			};
+
+			/*! Construct an output iterator for the Logger, to which you can write characters.
+				Upon a newline character being written (and appended), a log message will be printed.
+				\param level Level to log at (default: Info)
+				\return Iterator object
+			 */
+			Iterator out(BNLogLevel level = InfoLog);
 	};
 
 	/*! A class allowing registering and retrieving Loggers

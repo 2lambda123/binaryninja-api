@@ -305,3 +305,37 @@ vector<string> LogRegistry::GetLoggerNames()
 	BNFreeStringList(names, count);
 	return result;
 }
+
+
+Logger::Iterator::Iterator(Logger* logger, BNLogLevel level): m_logger(logger), m_level(level)
+{
+
+}
+
+
+std::string& Logger::Iterator::buffer()
+{
+	return m_logger->m_iterBuffer[m_level];
+}
+
+
+Logger::Iterator& Logger::Iterator::operator=(const char& ch)
+{
+	if (ch == '\n')
+	{
+		m_logger->Log(m_level, "%s", buffer().c_str());
+		buffer().clear();
+	}
+	else
+	{
+		buffer() += ch;
+	}
+	return *this;
+}
+
+
+Logger::Iterator Logger::out(BNLogLevel level)
+{
+	Iterator it{this, level};
+	return it;
+}
