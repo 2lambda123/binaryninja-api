@@ -38,6 +38,7 @@
 #include <atomic>
 #include <memory>
 #include <cstdint>
+#include <typeinfo>
 #include <type_traits>
 #include <variant>
 #include <optional>
@@ -47,6 +48,7 @@
 #include "json/json.h"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <fmt/core.h>
 
 #ifdef _MSC_VER
 	#define NOEXCEPT
@@ -974,6 +976,47 @@ namespace BinaryNinja {
 	void SetCurrentPluginLoadOrder(BNPluginLoadOrder order);
 	void AddRequiredPluginDependency(const std::string& name);
 	void AddOptionalPluginDependency(const std::string& name);
+
+	template<typename T>
+	std::string CoreEnumName()
+	{
+		// Extremely implementation-defined. Best-effort is made for our relevant platforms
+#ifdef WIN32
+		// DB      '. ?? AW4BNWhateverItsCalled', 00H
+		return std::string(typeid(T).name()).substr(8);
+#else
+		// 19BNWhateverItsCalled
+		auto name = std::string(typeid(T).name());
+		while (std::isdigit(name[0]))
+		{
+			name.erase(0, 1);
+		}
+		return name;
+#endif
+	}
+
+	template<typename T>
+	std::optional<std::string> CoreEnumToString(T value)
+	{
+		auto name = CoreEnumName<T>();
+		char* result;
+		if (!BNCoreEnumToString(name.c_str(), (size_t)value, &result))
+			return std::nullopt;
+		auto cppResult = std::string(result);
+		BNFreeString(result);
+		return cppResult;
+	}
+
+	template<typename T>
+	std::optional<T> CoreEnumFromString(const std::string& value)
+	{
+		auto name = CoreEnumName<T>();
+		size_t result;
+		if (!BNCoreEnumFromString(name.c_str(), value.c_str(), &result))
+			return std::nullopt;
+		return result;
+	}
+
 	/*!
 		@}
 	*/
@@ -16111,4 +16154,40 @@ template<> struct fmt::formatter<BinaryNinja::NameList>
 {
 	format_context::iterator format(const BinaryNinja::NameList& obj, format_context& ctx) const;
 	constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator { return ctx.begin(); }
+};
+
+template<typename T>
+struct fmt::formatter<T, char, std::enable_if_t<std::is_enum_v<T>, void>>
+{
+	// s -> name, d -> int, x -> hex
+	char presentation = 's';
+	format_context::iterator format(const T& obj, format_context& ctx) const
+	{
+		auto stringed = BinaryNinja::CoreEnumToString<T>(obj);
+		if (stringed.has_value())
+		{
+			switch (presentation)
+			{
+			default:
+			case 's':
+				return fmt::format_to(ctx.out(), "{}", *stringed);
+			case 'd':
+				return fmt::format_to(ctx.out(), "{}", (size_t)obj);
+			case 'x':
+				return fmt::format_to(ctx.out(), "{:#x}", (size_t)obj);
+			}
+		}
+		else
+		{
+			return fmt::format_to(ctx.out(), "{}", (size_t)obj);
+		}
+	}
+
+	constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator
+	{
+		auto it = ctx.begin(), end = ctx.end();
+		if (it != end && (*it == 's' || *it == 'd' || *it == 'x')) presentation = *it++;
+		if (it != end && *it != '}') detail::throw_format_error("invalid format");
+		return it;
+	}
 };
