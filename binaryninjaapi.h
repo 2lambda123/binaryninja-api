@@ -16159,7 +16159,7 @@ template<> struct fmt::formatter<BinaryNinja::NameList>
 template<typename T>
 struct fmt::formatter<T, char, std::enable_if_t<std::is_enum_v<T>, void>>
 {
-	// s -> name, d -> int, x -> hex
+	// s -> name, S -> scoped::name, d -> int, x -> hex
 	char presentation = 's';
 	format_context::iterator format(const T& obj, format_context& ctx) const
 	{
@@ -16171,6 +16171,8 @@ struct fmt::formatter<T, char, std::enable_if_t<std::is_enum_v<T>, void>>
 			default:
 			case 's':
 				return fmt::format_to(ctx.out(), "{}", *stringed);
+			case 'S':
+				return fmt::format_to(ctx.out(), "{}::{}", BinaryNinja::CoreEnumName<T>(), *stringed);
 			case 'd':
 				return fmt::format_to(ctx.out(), "{}", (size_t)obj);
 			case 'x':
@@ -16186,7 +16188,7 @@ struct fmt::formatter<T, char, std::enable_if_t<std::is_enum_v<T>, void>>
 	constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator
 	{
 		auto it = ctx.begin(), end = ctx.end();
-		if (it != end && (*it == 's' || *it == 'd' || *it == 'x')) presentation = *it++;
+		if (it != end && (*it == 's' || *it == 'S' || *it == 'd' || *it == 'x')) presentation = *it++;
 		if (it != end && *it != '}') detail::throw_format_error("invalid format");
 		return it;
 	}
