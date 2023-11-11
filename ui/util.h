@@ -34,6 +34,16 @@ bool BINARYNINJAUIAPI isBinaryNinjaDataBase(QFileInfo& info, QFileAccessor& acce
 PlatformRef BINARYNINJAUIAPI getOrAskForPlatform(QWidget* parent, BinaryViewRef data);
 PlatformRef BINARYNINJAUIAPI getOrAskForPlatform(QWidget* parent, PlatformRef defaultValue);
 
+
+namespace fmt
+{
+	template<typename... T>
+	QString qformat(format_string<T...> fmt, T&&... args)
+	{
+		return QString::fromStdString(vformat(fmt, make_format_args(args...)));
+	}
+}
+
 /*!
 	@}
 */
