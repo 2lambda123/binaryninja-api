@@ -162,6 +162,55 @@ void BinaryNinja::LogAlert(const char* fmt, ...)
 }
 
 
+void BinaryNinja::LogFV(BNLogLevel level, fmt::string_view format, fmt::format_args args)
+{
+	std::string value = fmt::vformat(format, args);
+	Log(level, "%s", value.c_str());
+}
+
+
+void BinaryNinja::LogTraceFV(fmt::string_view format, fmt::format_args args)
+{
+	std::string value = fmt::vformat(format, args);
+	LogTrace("%s", value.c_str());
+}
+
+
+void BinaryNinja::LogDebugFV(fmt::string_view format, fmt::format_args args)
+{
+	std::string value = fmt::vformat(format, args);
+	LogDebug("%s", value.c_str());
+}
+
+
+void BinaryNinja::LogInfoFV(fmt::string_view format, fmt::format_args args)
+{
+	std::string value = fmt::vformat(format, args);
+	LogInfo("%s", value.c_str());
+}
+
+
+void BinaryNinja::LogWarnFV(fmt::string_view format, fmt::format_args args)
+{
+	std::string value = fmt::vformat(format, args);
+	LogWarn("%s", value.c_str());
+}
+
+
+void BinaryNinja::LogErrorFV(fmt::string_view format, fmt::format_args args)
+{
+	std::string value = fmt::vformat(format, args);
+	LogError("%s", value.c_str());
+}
+
+
+void BinaryNinja::LogAlertFV(fmt::string_view format, fmt::format_args args)
+{
+	std::string value = fmt::vformat(format, args);
+	LogAlert("%s", value.c_str());
+}
+
+
 void BinaryNinja::LogToStdout(BNLogLevel minimumLevel)
 {
 	BNLogToStdout(minimumLevel);
@@ -267,6 +316,55 @@ void Logger::LogAlert(const char* fmt, ...)
 }
 
 
+void Logger::LogFV(BNLogLevel level, fmt::string_view format, fmt::format_args args)
+{
+	std::string value = fmt::vformat(format, args);
+	Log(level, "%s", value.c_str());
+}
+
+
+void Logger::LogTraceFV(fmt::string_view format, fmt::format_args args)
+{
+	std::string value = fmt::vformat(format, args);
+	LogTrace("%s", value.c_str());
+}
+
+
+void Logger::LogDebugFV(fmt::string_view format, fmt::format_args args)
+{
+	std::string value = fmt::vformat(format, args);
+	LogDebug("%s", value.c_str());
+}
+
+
+void Logger::LogInfoFV(fmt::string_view format, fmt::format_args args)
+{
+	std::string value = fmt::vformat(format, args);
+	LogInfo("%s", value.c_str());
+}
+
+
+void Logger::LogWarnFV(fmt::string_view format, fmt::format_args args)
+{
+	std::string value = fmt::vformat(format, args);
+	LogWarn("%s", value.c_str());
+}
+
+
+void Logger::LogErrorFV(fmt::string_view format, fmt::format_args args)
+{
+	std::string value = fmt::vformat(format, args);
+	LogError("%s", value.c_str());
+}
+
+
+void Logger::LogAlertFV(fmt::string_view format, fmt::format_args args)
+{
+	std::string value = fmt::vformat(format, args);
+	LogAlert("%s", value.c_str());
+}
+
+
 string Logger::GetName()
 {
 	char* name = BNLoggerGetName(m_object);
@@ -304,38 +402,4 @@ vector<string> LogRegistry::GetLoggerNames()
 		result.push_back(names[i]);
 	BNFreeStringList(names, count);
 	return result;
-}
-
-
-Logger::Iterator::Iterator(Logger* logger, BNLogLevel level): m_logger(logger), m_level(level)
-{
-
-}
-
-
-std::string& Logger::Iterator::buffer()
-{
-	return m_logger->m_iterBuffer[m_level];
-}
-
-
-Logger::Iterator& Logger::Iterator::operator=(const char& ch)
-{
-	if (ch == '\n')
-	{
-		m_logger->Log(m_level, "%s", buffer().c_str());
-		buffer().clear();
-	}
-	else
-	{
-		buffer() += ch;
-	}
-	return *this;
-}
-
-
-Logger::Iterator Logger::out(BNLogLevel level)
-{
-	Iterator it{this, level};
-	return it;
 }
