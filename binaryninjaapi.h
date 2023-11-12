@@ -3172,7 +3172,7 @@ namespace BinaryNinja {
 
 	  public:
 		NameList(const BNQualifiedName* name);
-		NameList(const std::string& join, size_t size = 0);
+		explicit NameList(const std::string& join, size_t size = 0);
 		NameList(const std::string& name, const std::string& join);
 		NameList(const std::vector<std::string>& name, const std::string& join);
 		NameList(const NameList& name, const std::string& join);
