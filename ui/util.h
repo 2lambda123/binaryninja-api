@@ -18,7 +18,7 @@ std::string BINARYNINJAUIAPI getStringForLocalVariable(ArchitectureRef arch, Fun
 std::string BINARYNINJAUIAPI getStringForRegisterValue(ArchitectureRef arch, BinaryNinja::RegisterValue value);
 std::string BINARYNINJAUIAPI getPossibleValueSetStateName(BNRegisterValueType state);
 std::string BINARYNINJAUIAPI getStringForIntegerValue(int64_t value);
-std::string BINARYNINJAUIAPI getStringForIntegerValue(uint64_t value);
+std::string BINARYNINJAUIAPI getStringForUIntegerValue(uint64_t value);
 std::string BINARYNINJAUIAPI getStringForPossibleValueSet(ArchitectureRef arch, const BinaryNinja::PossibleValueSet& values);
 std::string BINARYNINJAUIAPI getStringForInstructionDataflowDetails(BinaryViewRef data, ArchitectureRef arch, FunctionRef func, uint64_t address);
 std::optional<BinaryNinja::PossibleValueSet> BINARYNINJAUIAPI getPossibleValueSetForToken(View* view, BinaryViewRef data, ArchitectureRef arch,
