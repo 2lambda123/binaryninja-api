@@ -1193,7 +1193,7 @@ from binaryninja import *
 	@abc.abstractmethod
 	def perform_set_current_binary_view(self, view):
 		self.interpreter.current_view = view
-		if view is not None and self.debugger_imported:
+		if view is not None and self.debugger_imported and self.DebuggerController.controller_exists(view):
 			self.interpreter.current_dbg = self.DebuggerController(view)
 		else:
 			self.interpreter.current_dbg = None
