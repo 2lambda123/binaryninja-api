@@ -2,7 +2,7 @@ repo_name: 2lambda123/binaryninja-api
 report_id: 5e13d552d9ab01feb6299d918cfd2125
 version: 0.1
 repo_type: Public
-timestamp: '2024-01-09T06:55:48+00:00'
+timestamp: '2024-02-29T19:17:46+00:00'
 requested_by: xusheng6
 provider: github
 branch: master
@@ -72,7 +72,7 @@ tools:
   detection_source_url: https://github.com/2lambda123/binaryninja-api
   detection_source: Repo Metadata
 - name: CMake
-  description: 'An open-source system that manages the build process '
+  description: An open-source system that manages the build process
   website_url: http://www.cmake.org/
   open_source: false
   hosted_saas: false
